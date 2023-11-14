@@ -228,9 +228,10 @@ function singleTweet(tweet) {
 
   const select = document.createElement('select');
   const options = [
-    'good',
-    'bad',
-    'work harder'
+    'checked',
+    'recommendation',
+    'mistake',
+    'critical mistake'
   ]
   options.forEach(option => {
     const newOption = document.createElement('option');
@@ -241,13 +242,21 @@ function singleTweet(tweet) {
 
   const textArea = document.createElement('textarea');
 
-  const tweetLink = document.createElement('a');
-  tweetLink.href = tweet['Native Permalink'];
-  tweetLink.setAttribute('target', '_blank');
-  tweetLink.append('Message link');
+  const nativeLink = document.createElement('a');
+  nativeLink.href = tweet['Native Permalink'];
+  nativeLink.setAttribute('target', '_blank');
+  nativeLink.append('Client message');
 
-  const linkHolder = document.createElement('p');
-  linkHolder.appendChild(tweetLink);
+  const permaLink = document.createElement('a');
+  permaLink.href = tweet['Permalink'];
+  permaLink.setAttribute('target', '_blank');
+  permaLink.append('Our reply');
+
+  const nativeLinkHolder = document.createElement('p');
+  nativeLinkHolder.appendChild(nativeLink);
+
+  const permaLinkHolder = document.createElement('p');
+  permaLinkHolder.appendChild(permaLink);
 
   wrapper.appendChild(timeStamps);
   wrapper.appendChild(processingTime);
@@ -259,7 +268,8 @@ function singleTweet(tweet) {
     wrapper.appendChild(message);
   }
 
-  wrapper.appendChild(linkHolder);
+  wrapper.appendChild(nativeLinkHolder);
+  wrapper.appendChild(permaLinkHolder);
   wrapper.appendChild(select);
   wrapper.appendChild(br);
   wrapper.appendChild(textArea);
