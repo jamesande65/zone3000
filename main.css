@@ -139,6 +139,7 @@ textarea {
 
 .schedule {
   flex-basis: 85%;
+  min-width: 85%;
   /* margin-right: 15px; */
 }
 
@@ -200,6 +201,11 @@ textarea {
 
 .answers-wrapper.active {
   display: block;
+}
+
+.link {
+  cursor: pointer;
+  color: greenyellow;
 }
 
 /* Main block styles END */

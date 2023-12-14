@@ -1,6 +1,5 @@
 var data = {};
 
-
 let ExcelToJSON = function(variant) {
   this.parseExcel = function(file) {
     let reader = new FileReader();
@@ -66,6 +65,9 @@ document.getElementById('upload-answers').addEventListener('change', e => {
 // SHOW EMPLOYEES LIST START
 // *************************
 document.querySelector('.submit-button').addEventListener('click', e => {
+  jQuery('.employees').empty();
+  jQuery('.schedule').empty();
+
   e.preventDefault();
 
   if (!data.scheduleObj) {
@@ -124,9 +126,18 @@ jQuery('.employees').on('click', '.employee-button', e => {
 
 
 function showSelectedSchedule(selectedEmployee) {
+  let slowestMonthAnswerId = 0;
+  let fastestMonthAnswerId = 0;
+  let averageMonthTime = 0;
+  let slowestDayAnswerId = 0;
+  let fastestDayAnswerId = 0;
+  let messagesProcessedMonth = 0;
+  let employeesAnswersMonth = 0;
   const title = document.createElement('h2');
   const wrapper = document.createElement('div');
   const container = document.querySelector('.schedule');
+  const infoContainer = document.createElement('div');
+  infoContainer.classList.add('info-container');
 
   title.append(selectedEmployee.Name);
 
@@ -134,8 +145,11 @@ function showSelectedSchedule(selectedEmployee) {
     if (item !== 'Name' && item !== 'Org Unit' && item !=='Position') {
       return (
         selectedEmployee[item].indexOf("Morning") !== -1 ||  // 8-16
+        selectedEmployee[item].indexOf("08:00 - 16:00") !== -1 ||  // 8-16
         selectedEmployee[item].indexOf("Night") !== -1 ||  // 0-8
-        selectedEmployee[item].indexOf("Evening") !== -1  // 16-24
+        selectedEmployee[item].indexOf("00:00 - 08:00") !== -1 ||  // 0-8
+        selectedEmployee[item].indexOf("Evening") !== -1 ||  // 16-24
+        selectedEmployee[item].indexOf("16:00 - 08:00") !== -1  // 16-24
       );
     }
   });
@@ -158,20 +172,38 @@ function showSelectedSchedule(selectedEmployee) {
 
     const scheduleDate = new Date(item).toLocaleDateString();
 
-    const employeesAnswers = data.answersObj.filter(elem => {
-      const completed = elem['Completed Timestamp'].split(" ");
+    messagesProcessedMonth = data.answersObj.filter(elem => {
+      const completed = elem['Completed Timestamp']?.split(" ");
       const date = new Date(completed[0]).toLocaleDateString();
-      const time = Number(completed[1].split(":")[0]);
+      const time = Number(completed[1]?.split(":")[0]);
 
-      if (scheduleDate === date && selectedEmployee[item].indexOf("Morning") !== -1 && time >= 8 && time < 16) {
+      if (scheduleDate === date && (selectedEmployee[item].indexOf("Morning") !== -1 || selectedEmployee[item].indexOf("08:00 - 16:00") !== -1) && time >= 8 && time < 16) {
         return elem;
       }
 
-      if (scheduleDate === date && selectedEmployee[item].indexOf("Night") !== -1 && time >= 0 && time < 8) {
+      if (scheduleDate === date && (selectedEmployee[item].indexOf("Night") !== -1 || selectedEmployee[item].indexOf("00:00 - 08:00") !== -1) && time >= 0 && time < 8) {
         return elem;
       }
 
-      if (scheduleDate === date && selectedEmployee[item].indexOf("Evening") !== -1 && time >= 16 && time < 24) {
+      if (scheduleDate === date && (selectedEmployee[item].indexOf("Evening") !== -1 || selectedEmployee[item].indexOf("16:00 - 08:00") !== -1) && time >= 16 && time < 24) {
+        return elem;
+      }
+    })
+
+    employeesAnswersMonth = data.answersObj.filter(elem => {
+      const completed = elem['Completed Timestamp']?.split(" ");
+      const date = new Date(completed[0]).toLocaleDateString();
+      const time = Number(completed[1]?.split(":")[0]);
+
+      if (scheduleDate === date && elem['Reply Status'] === 'Yes' && (selectedEmployee[item].indexOf("Morning") !== -1 || selectedEmployee[item].indexOf("08:00 - 16:00") !== -1) && time >= 8 && time < 16) {
+        return elem;
+      }
+
+      if (scheduleDate === date && elem['Reply Status'] === 'Yes' && (selectedEmployee[item].indexOf("Night") !== -1 || selectedEmployee[item].indexOf("00:00 - 08:00") !== -1) && time >= 0 && time < 8) {
+        return elem;
+      }
+
+      if (scheduleDate === date && elem['Reply Status'] === 'Yes' && (selectedEmployee[item].indexOf("Evening") !== -1 || selectedEmployee[item].indexOf("16:00 - 08:00") !== -1) && time >= 16 && time < 24) {
         return elem;
       }
     })
@@ -179,7 +211,8 @@ function showSelectedSchedule(selectedEmployee) {
     const answersWrapper = document.createElement('div');
     answersWrapper.classList.add('answers-wrapper');
 
-    employeesAnswers.forEach(item => {
+    employeesAnswersMonth.forEach(item => {
+      console.log(item);
       const tweet = document.createElement('p');
       tweet.classList.add('tweet-wrapper');
       tweet.append(singleTweet(item));
@@ -194,13 +227,45 @@ function showSelectedSchedule(selectedEmployee) {
 
   container.innerHTML = '';
 
+  // количество обработаных сообщений
+  // количество ответов
+  // среднее время ответов
+  // самый длинный ответ (с ссылкой в идеале)
+  // самый быстрый ответ
+
+  infoContainer.appendChild(infoElement(messagesProcessedMonth.length, 'Messages processed quantity by month: '));
+  infoContainer.appendChild(infoElement(employeesAnswersMonth.length, 'Answers quantity by month: '));
+  infoContainer.appendChild(infoElement(averageMonthTime, 'Average answers time by month: '));
+  infoContainer.appendChild(infoLinkElement(slowestMonthAnswerId, 'Slowest answer by month: ', 'Slowest answer'));
+  infoContainer.appendChild(infoLinkElement(fastestMonthAnswerId, 'Fastest answer by month: ', 'Fastest answer'));
+
   if (scheduleOnly.length) {
     container.appendChild(title);
+    container.appendChild(infoContainer);
     container.appendChild(wrapper);
   } else {
     title.innerHTML = 'No shifts';
     container.appendChild(title);
   }
+}
+
+
+function infoElement(elem, text) {
+  const p = document.createElement('p');
+  p.innerHTML = text;
+  p.append(elem);
+  return p;
+}
+
+function infoLinkElement(elem, text, linkText) {
+  const p = document.createElement('p');
+  const a = document.createElement('a');
+  a.classList.add('link');
+  a.href = '#' + elem;
+  a.innerText = linkText;
+  p.append(text);
+  p.appendChild(a);
+  return p;
 }
 
 
@@ -282,7 +347,6 @@ function singleTweet(tweet) {
 
 jQuery('.schedule').on('click', '.shift-toggler', e => {
   const closestAnswers = jQuery(e.target).siblings('.answers-wrapper');
-  console.log(closestAnswers);
   if (!closestAnswers.hasClass('active')) {
     closestAnswers.addClass('active');
     e.target.classList.add('active');
