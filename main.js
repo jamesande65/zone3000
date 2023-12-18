@@ -126,13 +126,19 @@ jQuery('.employees').on('click', '.employee-button', e => {
 
 
 function showSelectedSchedule(selectedEmployee) {
+  // MONTH
   let slowestMonthAnswerId = 0;
   let fastestMonthAnswerId = 0;
+  let averageMonthArr = [];
   let averageMonthTime = 0;
-  let slowestDayAnswerId = 0;
-  let fastestDayAnswerId = 0;
   let messagesProcessedMonth = 0;
   let employeesAnswersMonth = 0;
+  // SHIFT
+  let slowestDayAnswerId = 0;
+  let fastestDayAnswerId = 0;
+  let messagesProcessedShift = 0;
+  let employeesAnswersShift = 0;
+
   const title = document.createElement('h2');
   const wrapper = document.createElement('div');
   const container = document.querySelector('.schedule');
@@ -158,6 +164,9 @@ function showSelectedSchedule(selectedEmployee) {
     const title = document.createElement('b');
     title.append(item);
 
+    const infoContainer = document.createElement('div');
+    infoContainer.classList.add('info-container');
+
     const buttonShiftToggler = document.createElement('button');
     buttonShiftToggler.classList.add('shift-toggler');
     buttonShiftToggler.append('>');
@@ -172,7 +181,7 @@ function showSelectedSchedule(selectedEmployee) {
 
     const scheduleDate = new Date(item).toLocaleDateString();
 
-    messagesProcessedMonth = data.answersObj.filter(elem => {
+    messagesProcessedShift = data.answersObj.filter(elem => {
       const completed = elem['Completed Timestamp']?.split(" ");
       const date = new Date(completed[0]).toLocaleDateString();
       const time = Number(completed[1]?.split(":")[0]);
@@ -190,7 +199,7 @@ function showSelectedSchedule(selectedEmployee) {
       }
     })
 
-    employeesAnswersMonth = data.answersObj.filter(elem => {
+    employeesAnswersShift = data.answersObj.filter(elem => {
       const completed = elem['Completed Timestamp']?.split(" ");
       const date = new Date(completed[0]).toLocaleDateString();
       const time = Number(completed[1]?.split(":")[0]);
@@ -211,7 +220,7 @@ function showSelectedSchedule(selectedEmployee) {
     const answersWrapper = document.createElement('div');
     answersWrapper.classList.add('answers-wrapper');
 
-    employeesAnswersMonth.forEach(item => {
+    employeesAnswersShift.forEach((item, index) => {
       console.log(item);
       const tweet = document.createElement('p');
       tweet.classList.add('tweet-wrapper');
@@ -219,6 +228,9 @@ function showSelectedSchedule(selectedEmployee) {
 
       answersWrapper.appendChild(tweet);
     })
+
+    messagesProcessedMonth += messagesProcessedShift.length;
+    employeesAnswersMonth += employeesAnswersShift.length;
 
     div.appendChild(answersWrapper);
 
@@ -233,8 +245,12 @@ function showSelectedSchedule(selectedEmployee) {
   // самый длинный ответ (с ссылкой в идеале)
   // самый быстрый ответ
 
-  infoContainer.appendChild(infoElement(messagesProcessedMonth.length, 'Messages processed quantity by month: '));
-  infoContainer.appendChild(infoElement(employeesAnswersMonth.length, 'Answers quantity by month: '));
+  averageMonthTime = Math.floor(averageMonthArr.reduce((a, b) => a + b, 0) / averageMonthArr.length);
+  slowestMonthAnswerId = Math.max(...averageMonthArr);
+  fastestMonthAnswerId = Math.min(...averageMonthArr);
+
+  infoContainer.appendChild(infoElement(messagesProcessedMonth, 'Messages processed quantity by month: '));
+  infoContainer.appendChild(infoElement(employeesAnswersMonth, 'Answers quantity by month: '));
   infoContainer.appendChild(infoElement(averageMonthTime, 'Average answers time by month: '));
   infoContainer.appendChild(infoLinkElement(slowestMonthAnswerId, 'Slowest answer by month: ', 'Slowest answer'));
   infoContainer.appendChild(infoLinkElement(fastestMonthAnswerId, 'Fastest answer by month: ', 'Fastest answer'));
@@ -246,6 +262,81 @@ function showSelectedSchedule(selectedEmployee) {
   } else {
     title.innerHTML = 'No shifts';
     container.appendChild(title);
+  }
+
+  function singleTweet(tweet) {
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('single-tweet');
+
+    const br = document.createElement('br');
+
+    const completed = document.createElement('span');
+    completed.append(tweet['Completed Timestamp'])
+    const submitted = document.createElement('span');
+    submitted.append(tweet['Timestamp (PT)']);
+
+    const timeStamps = document.createElement('p');
+    timeStamps.append(tweet['Timestamp (PT)'] + " - " + tweet['Completed Timestamp']);
+
+    const submittedTime = new Date(tweet['Timestamp (PT)']);
+    const completedTime = new Date(tweet['Completed Timestamp']);
+    const diff = Math.abs(completedTime - submittedTime);
+    const minutes = Math.floor((diff/1000)/60);
+
+    averageMonthArr.push(minutes);
+
+    const processingTime = document.createElement('p');
+    processingTime.append(minutes + ' minutes processing');
+
+    const select = document.createElement('select');
+    const options = [
+      'checked',
+      'recommendation',
+      'mistake',
+      'critical mistake'
+    ]
+    options.forEach(option => {
+      const newOption = document.createElement('option');
+      newOption.append(option);
+
+      select.appendChild(newOption);
+    })
+
+    const textArea = document.createElement('textarea');
+
+    const nativeLink = document.createElement('a');
+    nativeLink.href = tweet['Native Permalink'];
+    nativeLink.setAttribute('target', '_blank');
+    nativeLink.append('Client message');
+
+    const permaLink = document.createElement('a');
+    permaLink.href = tweet['Permalink'];
+    permaLink.setAttribute('target', '_blank');
+    permaLink.append('Our reply');
+
+    const nativeLinkHolder = document.createElement('p');
+    nativeLinkHolder.appendChild(nativeLink);
+
+    const permaLinkHolder = document.createElement('p');
+    permaLinkHolder.appendChild(permaLink);
+
+    wrapper.appendChild(timeStamps);
+    wrapper.appendChild(processingTime);
+
+    if (tweet['Message']) {
+      const message = document.createElement('p');
+      message.append(tweet['Message']);
+
+      wrapper.appendChild(message);
+    }
+
+    wrapper.appendChild(nativeLinkHolder);
+    wrapper.appendChild(permaLinkHolder);
+    wrapper.appendChild(select);
+    wrapper.appendChild(br);
+    wrapper.appendChild(textArea);
+
+    return wrapper;
   }
 }
 
@@ -266,80 +357,6 @@ function infoLinkElement(elem, text, linkText) {
   p.append(text);
   p.appendChild(a);
   return p;
-}
-
-
-function singleTweet(tweet) {
-  const wrapper = document.createElement('div');
-  wrapper.classList.add('single-tweet');
-
-  const br = document.createElement('br');
-
-  const completed = document.createElement('span');
-  completed.append(tweet['Completed Timestamp'])
-  const submitted = document.createElement('span');
-  submitted.append(tweet['Timestamp (PT)']);
-
-  const timeStamps = document.createElement('p');
-  timeStamps.append(tweet['Timestamp (PT)'] + " - " + tweet['Completed Timestamp']);
-
-  const submittedTime = new Date(tweet['Timestamp (PT)']);
-  const completedTime = new Date(tweet['Completed Timestamp']);
-  const diff = Math.abs(completedTime - submittedTime);
-  const minutes = Math.floor((diff/1000)/60);
-
-  const processingTime = document.createElement('p');
-  processingTime.append(minutes + ' minutes processing');
-
-  const select = document.createElement('select');
-  const options = [
-    'checked',
-    'recommendation',
-    'mistake',
-    'critical mistake'
-  ]
-  options.forEach(option => {
-    const newOption = document.createElement('option');
-    newOption.append(option);
-
-    select.appendChild(newOption);
-  })
-
-  const textArea = document.createElement('textarea');
-
-  const nativeLink = document.createElement('a');
-  nativeLink.href = tweet['Native Permalink'];
-  nativeLink.setAttribute('target', '_blank');
-  nativeLink.append('Client message');
-
-  const permaLink = document.createElement('a');
-  permaLink.href = tweet['Permalink'];
-  permaLink.setAttribute('target', '_blank');
-  permaLink.append('Our reply');
-
-  const nativeLinkHolder = document.createElement('p');
-  nativeLinkHolder.appendChild(nativeLink);
-
-  const permaLinkHolder = document.createElement('p');
-  permaLinkHolder.appendChild(permaLink);
-
-  wrapper.appendChild(timeStamps);
-  wrapper.appendChild(processingTime);
-
-  if (tweet['Message']) {
-    const message = document.createElement('p');
-    message.append(tweet['Message']);
-
-    wrapper.appendChild(message);
-  }
-
-  wrapper.appendChild(nativeLinkHolder);
-  wrapper.appendChild(permaLinkHolder);
-  wrapper.appendChild(select);
-  wrapper.appendChild(br);
-  wrapper.appendChild(textArea);
-
-  return wrapper;
 }
 // ***************************
 // SHOW EMPLOYEES SCHEDULE END
