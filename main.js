@@ -1,5 +1,11 @@
 var data = {};
 
+
+
+// *******************************
+// ExcelToJSON PARSING FILES START
+// *******************************
+
 let ExcelToJSON = function(variant) {
   this.parseExcel = function(file) {
     let reader = new FileReader();
@@ -21,15 +27,11 @@ let ExcelToJSON = function(variant) {
             return obj.Position === "Social Media Support Expert (secondary)";
           });
 
-          // console.log("Schedule: ", filtered);
-
           window.data.scheduleObj = filtered;
         } else if (variant === 'answers') {
           filtered = JSON.parse(json_object).filter((obj) => {
             return obj["Task Assignee"] !== "Den Kislinskiy";
           })
-
-          // console.log("Answers: ", filtered);
 
           window.data.answersObj = filtered;
         }
@@ -44,14 +46,12 @@ let ExcelToJSON = function(variant) {
   };
 };
 
-
 document.getElementById('upload-schedule').addEventListener('change', e => {
   let files = e.target.files; // FileList object
   let xl2json = new ExcelToJSON('schedule');
   xl2json.parseExcel(files[0]);
   e.target.classList.add('uploaded');
 }, false);
-
 
 document.getElementById('upload-answers').addEventListener('change', e => {
   let files = e.target.files; // FileList object
@@ -60,10 +60,16 @@ document.getElementById('upload-answers').addEventListener('change', e => {
   e.target.classList.add('uploaded');
 }, false);
 
+// *****************************
+// ExcelToJSON PARSING FILES END
+// *****************************
+
+
 
 // *************************
 // SHOW EMPLOYEES LIST START
 // *************************
+
 document.querySelector('.submit-button').addEventListener('click', e => {
   jQuery('.employees').empty();
   jQuery('.schedule').empty();
@@ -83,7 +89,6 @@ document.querySelector('.submit-button').addEventListener('click', e => {
   showAllEmployees(data.scheduleObj);
 });
 
-
 function showAllEmployees(employees) {
   const list = document.createElement('ul');
   const container = document.querySelector('.employees');
@@ -94,7 +99,6 @@ function showAllEmployees(employees) {
 
   container.appendChild(list);
 }
-
 
 function generateListItem(employee) {
   const listItem = document.createElement('li');
@@ -107,14 +111,17 @@ function generateListItem(employee) {
 
   return listItem;
 }
+
 // ***********************
 // SHOW EMPLOYEES LIST END
 // ***********************
 
 
+
 // *****************************
 // SHOW EMPLOYEES SCHEDULE START
 // *****************************
+
 jQuery('.employees').on('click', '.employee-button', e => {
   let selectedEmployee = e.target.dataset.name;
   let selectedSchedule = data.scheduleObj.filter(item => {
@@ -123,7 +130,6 @@ jQuery('.employees').on('click', '.employee-button', e => {
 
   showSelectedSchedule(selectedSchedule[0]);
 });
-
 
 function showSelectedSchedule(selectedEmployee) {
   let answersIdCounter = 0;
@@ -136,9 +142,6 @@ function showSelectedSchedule(selectedEmployee) {
   let employeesAnswersMonth = 0;
   // SHIFT
   let slowestShiftAnswerId = 0;
-  // let fastestShiftAnswerId = 0;
-  let averageShiftArr = [];
-  let averageShiftTime = 0;
   let messagesProcessedShift = 0;
   let employeesAnswersShift = 0;
 
@@ -163,7 +166,7 @@ function showSelectedSchedule(selectedEmployee) {
     }
   });
 
-  scheduleOnly.forEach((item, indexSchedule) => {
+  scheduleOnly.forEach((item, indexShift) => {
     const title = document.createElement('b');
     title.append(item);
 
@@ -215,11 +218,17 @@ function showSelectedSchedule(selectedEmployee) {
     const answersWrapper = document.createElement('div');
     answersWrapper.classList.add('answers-wrapper', 'active');
 
-    employeesAnswersShift.forEach((item, indexShift) => {
-      console.log(item);
+    let oneShiftAnswers = [];
+
+    employeesAnswersShift.forEach((item, indexAnswer) => {
       const tweet = document.createElement('p');
       tweet.classList.add('tweet-wrapper');
-      tweet.append(singleTweet(item, answersIdCounter));
+      tweet.append(singleTweet(item, answersIdCounter, indexShift, indexAnswer));
+
+      oneShiftAnswers.push({
+        id: tweet.querySelector('.single-tweet').id,
+        time: tweet.querySelector('.single-tweet').dataset.minutes
+      });
 
       answersIdCounter++;
 
@@ -234,20 +243,22 @@ function showSelectedSchedule(selectedEmployee) {
   // среднее время ответов
   // самый длинный ответ (с ссылкой в идеале)
 
-    
+
 
     const div = document.createElement('div');
     div.classList.add('one-shift');
     const br = document.createElement('br');
     div.appendChild(title);
 
-    // averageShiftArr = Math.floor(employeesAnswersShift.reduce((a, b) => a + b, 0) / employeesAnswersShift.length);
-    // slowestShiftAnswerId = Math.max(...averageShiftArr);
+    let times = oneShiftAnswers.map(item => Number(item.time));
+    let averageShiftTime = Math.floor(times.reduce((a, b) => a + b, 0) / times.length);
+    let slowestShiftAnswerTime = times.indexOf(Math.max.apply(null, times));
+    slowestShiftAnswerId = oneShiftAnswers[slowestShiftAnswerTime].id;
 
     div.appendChild(infoElement(messagesProcessedShift.length, 'Messages processed quantity by shift: '));
     div.appendChild(infoElement(employeesAnswersShift.length, 'Answers quantity by shift: '));
-    // div.appendChild(infoElement(averageShiftTime, 'Average answers time by shift: '));
-    // div.appendChild(infoElement(slowestShiftAnswerId, 'Slowest answer by shift: '));
+    div.appendChild(infoElement(averageShiftTime, 'Average answers time by shift: '));
+    div.appendChild(infoLinkElement(slowestShiftAnswerId, 'Slowest answer by shift: ', 'Slowest answer'));
 
     div.appendChild(buttonShiftToggler);
     div.appendChild(br);
@@ -285,9 +296,11 @@ function showSelectedSchedule(selectedEmployee) {
     container.appendChild(title);
   }
 
-  function singleTweet(tweet, answersIdCounter) {
+  function singleTweet(tweet, answersIdCounter, indexShift, indexAnswer) {
     const wrapper = document.createElement('div');
     wrapper.id = answersIdCounter;
+    wrapper.dataset.indexShift = indexShift;
+    wrapper.dataset.indexAnswer = indexAnswer;
     wrapper.classList.add('single-tweet');
 
     const br = document.createElement('br');
@@ -304,6 +317,8 @@ function showSelectedSchedule(selectedEmployee) {
     const completedTime = new Date(tweet['Completed Timestamp']);
     const diff = Math.abs(completedTime - submittedTime);
     const minutes = Math.floor((diff/1000)/60);
+
+    wrapper.dataset.minutes = minutes;
 
     averageMonthArr.push(minutes);
 
@@ -362,7 +377,6 @@ function showSelectedSchedule(selectedEmployee) {
   }
 }
 
-
 function infoElement(elem, text) {
   const p = document.createElement('p');
   p.innerHTML = text;
@@ -380,9 +394,16 @@ function infoLinkElement(elem, text, linkText) {
   p.appendChild(a);
   return p;
 }
+
 // ***************************
 // SHOW EMPLOYEES SCHEDULE END
 // ***************************
+
+
+
+// ********************
+// TOGGLER BUTTON START
+// ********************
 
 jQuery('.schedule').on('click', '.shift-toggler', e => {
   const closestAnswers = jQuery(e.target).siblings('.answers-wrapper');
@@ -394,3 +415,7 @@ jQuery('.schedule').on('click', '.shift-toggler', e => {
     e.target.classList.remove('active');
   }
 });
+
+// ******************
+// TOGGLER BUTTON END
+// ******************
