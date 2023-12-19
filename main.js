@@ -126,6 +126,7 @@ jQuery('.employees').on('click', '.employee-button', e => {
 
 
 function showSelectedSchedule(selectedEmployee) {
+  let answersIdCounter = 0;
   // MONTH
   let slowestMonthAnswerId = 0;
   let fastestMonthAnswerId = 0;
@@ -134,8 +135,10 @@ function showSelectedSchedule(selectedEmployee) {
   let messagesProcessedMonth = 0;
   let employeesAnswersMonth = 0;
   // SHIFT
-  let slowestDayAnswerId = 0;
-  let fastestDayAnswerId = 0;
+  let slowestShiftAnswerId = 0;
+  // let fastestShiftAnswerId = 0;
+  let averageShiftArr = [];
+  let averageShiftTime = 0;
   let messagesProcessedShift = 0;
   let employeesAnswersShift = 0;
 
@@ -160,7 +163,7 @@ function showSelectedSchedule(selectedEmployee) {
     }
   });
 
-  scheduleOnly.forEach(item => {
+  scheduleOnly.forEach((item, indexSchedule) => {
     const title = document.createElement('b');
     title.append(item);
 
@@ -168,16 +171,8 @@ function showSelectedSchedule(selectedEmployee) {
     infoContainer.classList.add('info-container');
 
     const buttonShiftToggler = document.createElement('button');
-    buttonShiftToggler.classList.add('shift-toggler');
+    buttonShiftToggler.classList.add('shift-toggler','active');
     buttonShiftToggler.append('>');
-
-    const div = document.createElement('div');
-    div.classList.add('one-shift');
-    const br = document.createElement('br');
-    div.appendChild(title);
-    div.appendChild(buttonShiftToggler);
-    div.appendChild(br);
-    div.append(selectedEmployee[item]);
 
     const scheduleDate = new Date(item).toLocaleDateString();
 
@@ -218,19 +213,45 @@ function showSelectedSchedule(selectedEmployee) {
     })
 
     const answersWrapper = document.createElement('div');
-    answersWrapper.classList.add('answers-wrapper');
+    answersWrapper.classList.add('answers-wrapper', 'active');
 
-    employeesAnswersShift.forEach((item, index) => {
+    employeesAnswersShift.forEach((item, indexShift) => {
       console.log(item);
       const tweet = document.createElement('p');
       tweet.classList.add('tweet-wrapper');
-      tweet.append(singleTweet(item));
+      tweet.append(singleTweet(item, answersIdCounter));
+
+      answersIdCounter++;
 
       answersWrapper.appendChild(tweet);
     })
 
     messagesProcessedMonth += messagesProcessedShift.length;
     employeesAnswersMonth += employeesAnswersShift.length;
+
+  // количество обработаных сообщений
+  // количество ответов
+  // среднее время ответов
+  // самый длинный ответ (с ссылкой в идеале)
+
+    
+
+    const div = document.createElement('div');
+    div.classList.add('one-shift');
+    const br = document.createElement('br');
+    div.appendChild(title);
+
+    // averageShiftArr = Math.floor(employeesAnswersShift.reduce((a, b) => a + b, 0) / employeesAnswersShift.length);
+    // slowestShiftAnswerId = Math.max(...averageShiftArr);
+
+    div.appendChild(infoElement(messagesProcessedShift.length, 'Messages processed quantity by shift: '));
+    div.appendChild(infoElement(employeesAnswersShift.length, 'Answers quantity by shift: '));
+    // div.appendChild(infoElement(averageShiftTime, 'Average answers time by shift: '));
+    // div.appendChild(infoElement(slowestShiftAnswerId, 'Slowest answer by shift: '));
+
+    div.appendChild(buttonShiftToggler);
+    div.appendChild(br);
+    div.append(selectedEmployee[item]);
 
     div.appendChild(answersWrapper);
 
@@ -246,8 +267,8 @@ function showSelectedSchedule(selectedEmployee) {
   // самый быстрый ответ
 
   averageMonthTime = Math.floor(averageMonthArr.reduce((a, b) => a + b, 0) / averageMonthArr.length);
-  slowestMonthAnswerId = Math.max(...averageMonthArr);
-  fastestMonthAnswerId = Math.min(...averageMonthArr);
+  slowestMonthAnswerId = averageMonthArr.indexOf(Math.max(...averageMonthArr));
+  fastestMonthAnswerId = averageMonthArr.indexOf(Math.min(...averageMonthArr));
 
   infoContainer.appendChild(infoElement(messagesProcessedMonth, 'Messages processed quantity by month: '));
   infoContainer.appendChild(infoElement(employeesAnswersMonth, 'Answers quantity by month: '));
@@ -264,8 +285,9 @@ function showSelectedSchedule(selectedEmployee) {
     container.appendChild(title);
   }
 
-  function singleTweet(tweet) {
+  function singleTweet(tweet, answersIdCounter) {
     const wrapper = document.createElement('div');
+    wrapper.id = answersIdCounter;
     wrapper.classList.add('single-tweet');
 
     const br = document.createElement('br');
