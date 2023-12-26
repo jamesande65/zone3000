@@ -155,6 +155,16 @@ textarea {
   background-color: gray;
   color: black;
   font-weight: 600;
+  position: relative;
+}
+
+.family {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: yellowgreen;
+  font-size: 20px;
+  font-weight: normal;
 }
 
 .single-tweet p {

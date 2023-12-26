@@ -149,6 +149,9 @@ function showSelectedSchedule(selectedEmployee) {
   const wrapper = document.createElement('div');
   const container = document.querySelector('.schedule');
   const infoContainer = document.createElement('div');
+
+  var regExp = /[a-zA-Z]/g;
+
   infoContainer.classList.add('info-container');
 
   title.append(selectedEmployee.Name);
@@ -170,6 +173,8 @@ function showSelectedSchedule(selectedEmployee) {
     const title = document.createElement('b');
     title.append(item);
 
+    console.log(item);
+
     const infoContainer = document.createElement('div');
     infoContainer.classList.add('info-container');
 
@@ -180,40 +185,56 @@ function showSelectedSchedule(selectedEmployee) {
     const scheduleDate = new Date(item).toLocaleDateString();
 
     messagesProcessedShift = data.answersObj.filter(elem => {
-      const completed = elem['Completed Timestamp']?.split(" ");
-      const date = new Date(completed[0]).toLocaleDateString();
-      const time = Number(completed[1]?.split(":")[0]);
-
-      if (scheduleDate === date && (selectedEmployee[item].indexOf("Morning") !== -1 || selectedEmployee[item].indexOf("08:00 - 16:00") !== -1) && time >= 8 && time < 16) {
-        return elem;
+      const completed = elem['Completed Timestamp'];
+      if (!completed || regExp.test(completed)) {
+        return false;
       }
 
-      if (scheduleDate === date && (selectedEmployee[item].indexOf("Night") !== -1 || selectedEmployee[item].indexOf("00:00 - 08:00") !== -1) && time >= 0 && time < 8) {
-        return elem;
-      }
+      const completedArray = completed?.split(" ");
+      const date = new Date(completedArray[0]).toLocaleDateString();
+      const time = Number(completedArray[1]?.split(":")[0]);
 
-      if (scheduleDate === date && (selectedEmployee[item].indexOf("Evening") !== -1 || selectedEmployee[item].indexOf("16:00 - 08:00") !== -1) && time >= 16 && time < 24) {
-        return elem;
+      if (date && time) {
+        if (scheduleDate === date && (selectedEmployee[item].indexOf("Morning") !== -1 || selectedEmployee[item].indexOf("08:00 - 16:00") !== -1) && time >= 8 && time < 16) {
+          return elem;
+        }
+
+        if (scheduleDate === date && (selectedEmployee[item].indexOf("Night") !== -1 || selectedEmployee[item].indexOf("00:00 - 08:00") !== -1) && time >= 0 && time < 8) {
+          return elem;
+        }
+
+        if (scheduleDate === date && (selectedEmployee[item].indexOf("Evening") !== -1 || selectedEmployee[item].indexOf("16:00 - 08:00") !== -1) && time >= 16 && time < 24) {
+          return elem;
+        }
       }
     })
 
     employeesAnswersShift = data.answersObj.filter(elem => {
-      const completed = elem['Completed Timestamp']?.split(" ");
-      const date = new Date(completed[0]).toLocaleDateString();
-      const time = Number(completed[1]?.split(":")[0]);
-
-      if (scheduleDate === date && elem['Reply Status'] === 'Yes' && (selectedEmployee[item].indexOf("Morning") !== -1 || selectedEmployee[item].indexOf("08:00 - 16:00") !== -1) && time >= 8 && time < 16) {
-        return elem;
+      const completed = elem['Completed Timestamp'];
+      if (!completed || regExp.test(completed)) {
+        return false;
       }
 
-      if (scheduleDate === date && elem['Reply Status'] === 'Yes' && (selectedEmployee[item].indexOf("Night") !== -1 || selectedEmployee[item].indexOf("00:00 - 08:00") !== -1) && time >= 0 && time < 8) {
-        return elem;
-      }
+      const completedArray = completed?.split(" ");
+      const date = new Date(completedArray[0]).toLocaleDateString();
+      const time = Number(completedArray[1]?.split(":")[0]);
 
-      if (scheduleDate === date && elem['Reply Status'] === 'Yes' && (selectedEmployee[item].indexOf("Evening") !== -1 || selectedEmployee[item].indexOf("16:00 - 08:00") !== -1) && time >= 16 && time < 24) {
-        return elem;
+      if (date && time) {
+        if (scheduleDate === date && elem['Reply Status'] === 'Yes' && (selectedEmployee[item].indexOf("Morning") !== -1 || selectedEmployee[item].indexOf("08:00 - 16:00") !== -1) && time >= 8 && time < 16) {
+          return elem;
+        }
+
+        if (scheduleDate === date && elem['Reply Status'] === 'Yes' && (selectedEmployee[item].indexOf("Night") !== -1 || selectedEmployee[item].indexOf("00:00 - 08:00") !== -1) && time >= 0 && time < 8) {
+          return elem;
+        }
+
+        if (scheduleDate === date && elem['Reply Status'] === 'Yes' && (selectedEmployee[item].indexOf("Evening") !== -1 || selectedEmployee[item].indexOf("16:00 - 08:00") !== -1) && time >= 16 && time < 24) {
+          return elem;
+        }
       }
     })
+
+    console.log(employeesAnswersShift);
 
     const answersWrapper = document.createElement('div');
     answersWrapper.classList.add('answers-wrapper', 'active');
@@ -253,7 +274,7 @@ function showSelectedSchedule(selectedEmployee) {
     let times = oneShiftAnswers.map(item => Number(item.time));
     let averageShiftTime = Math.floor(times.reduce((a, b) => a + b, 0) / times.length);
     let slowestShiftAnswerTime = times.indexOf(Math.max.apply(null, times));
-    slowestShiftAnswerId = oneShiftAnswers[slowestShiftAnswerTime].id;
+    slowestShiftAnswerId = oneShiftAnswers[slowestShiftAnswerTime]?.id;
 
     div.appendChild(infoElement(messagesProcessedShift.length, 'Messages processed quantity by shift: '));
     div.appendChild(infoElement(employeesAnswersShift.length, 'Answers quantity by shift: '));
@@ -287,6 +308,10 @@ function showSelectedSchedule(selectedEmployee) {
   infoContainer.appendChild(infoLinkElement(slowestMonthAnswerId, 'Slowest answer by month: ', 'Slowest answer'));
   infoContainer.appendChild(infoLinkElement(fastestMonthAnswerId, 'Fastest answer by month: ', 'Fastest answer'));
 
+  if (!messagesProcessedMonth && !employeesAnswersMonth) {
+    scheduleOnly = [];
+  }
+
   if (scheduleOnly.length) {
     container.appendChild(title);
     container.appendChild(infoContainer);
@@ -312,6 +337,22 @@ function showSelectedSchedule(selectedEmployee) {
 
     const timeStamps = document.createElement('p');
     timeStamps.append(tweet['Timestamp (PT)'] + " - " + tweet['Completed Timestamp']);
+
+    const family = document.createElement('span');
+    family.classList.add('family');
+
+    if(tweet['Connected Profile']) {
+      if (tweet['Connected Profile'].toLowerCase() === 'spaceship') {
+        family.append('S');
+        family.setAttribute('title', 'Spaceship');
+      } else {
+        family.append('N');
+        family.setAttribute('title', 'Namecheap');
+      }
+    } else {
+      family.append('N');
+      family.setAttribute('title', 'Namecheap');
+    }
 
     const submittedTime = new Date(tweet['Timestamp (PT)']);
     const completedTime = new Date(tweet['Completed Timestamp']);
@@ -358,6 +399,7 @@ function showSelectedSchedule(selectedEmployee) {
     permaLinkHolder.appendChild(permaLink);
 
     wrapper.appendChild(timeStamps);
+    wrapper.appendChild(family);
     wrapper.appendChild(processingTime);
 
     if (tweet['Message']) {
