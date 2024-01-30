@@ -1,83 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
 
-  <link rel="stylesheet" type="text/css" href="main.css">
+        <link rel="stylesheet" type="text/css" href="main.css" />
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
-</head>
-<body>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+    </head>
+    <body>
+        <div class="wrapper">
+            <main class="main">
+                <div class="container">
+                    <div class="main-inner">
+                        <article>
+                            <h1>Please be sure that both files are uploaded to have proper results</h1>
 
-  <div class="wrapper">
+                            <form enctype="multipart/form-data">
+                                <fieldset>
+                                    <label class="input-label">
+                                        <input id="upload-schedule" class="input-file" accept=".xlsx" type="file" name="files[]" />
+                                        <svg class="upload-icon" version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                            <path d="M26 2h-20l-6 6v21c0 0.552 0.448 1 1 1h30c0.552 0 1-0.448 1-1v-21l-6-6zM20 20v6h-8v-6h-6l10-8 10 8h-6zM4.828 6l2-2h18.343l2 2h-22.343z"></path>
+                                        </svg>
 
-    <main class="main">
-      <div class="container">
-        <div class="main-inner">
-          <article>
-            <h1>Please be sure that both files are uploaded to have proper results</h1>
+                                        Please use this input file field for uploading
+                                        <span>
+                                            <b>schedule .xlsx file</b>
+                                        </span>
+                                    </label>
+                                </fieldset>
+                                <fieldset>
+                                    <label class="input-label">
+                                        <input id="upload-answers" class="input-file" accept=".xlsx" type="file" name="files[]" />
+                                        <svg class="upload-icon" version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                            <path d="M26 2h-20l-6 6v21c0 0.552 0.448 1 1 1h30c0.552 0 1-0.448 1-1v-21l-6-6zM20 20v6h-8v-6h-6l10-8 10 8h-6zM4.828 6l2-2h18.343l2 2h-22.343z"></path>
+                                        </svg>
 
-            <form enctype="multipart/form-data">
-              <fieldset>
-                <label class="input-label">
-                  <input
-                    id="upload-schedule"
-                    class="input-file"
-                    accept=".xlsx"
-                    type=file
-                    name="files[]"
-                  >
-                  <svg class="upload-icon" version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-                    <path d="M26 2h-20l-6 6v21c0 0.552 0.448 1 1 1h30c0.552 0 1-0.448 1-1v-21l-6-6zM20 20v6h-8v-6h-6l10-8 10 8h-6zM4.828 6l2-2h18.343l2 2h-22.343z"></path>
-                  </svg>
+                                        Please use this input file field for uploading
+                                        <span>
+                                            <b>answers .xlsx file</b>
+                                        </span>
+                                    </label>
+                                </fieldset>
+                                <fieldset>
+                                    <button type="submit" class="submit-button">Submit</button>
+                                </fieldset>
+                            </form>
 
-                  Please use this input file field for uploading
-                  <span>
-                    <b>schedule .xlsx file</b>
-                  </span>
-                </label>
-              </fieldset>
-              <fieldset>
-                <label class="input-label">
-                  <input
-                    id="upload-answers"
-                    class="input-file"
-                    accept=".xlsx"
-                    type=file
-                    name="files[]"
-                  >
-                  <svg class="upload-icon" version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-                    <path d="M26 2h-20l-6 6v21c0 0.552 0.448 1 1 1h30c0.552 0 1-0.448 1-1v-21l-6-6zM20 20v6h-8v-6h-6l10-8 10 8h-6zM4.828 6l2-2h18.343l2 2h-22.343z"></path>
-                  </svg>
+                            <div class="content-wrapper">
+                                <div class="employees"></div>
 
-                  Please use this input file field for uploading
-                  <span>
-                    <b>answers .xlsx file</b>
-                  </span>
-                </label>
-              </fieldset>
-              <fieldset>
-                <button type="submit" class="submit-button">Submit</button>
-              </fieldset>
-            </form>
-
-            <div class="content-wrapper">
-              <div class="employees"></div>
-
-              <div class="schedule"></div>
-            </div>
-
-          </article>
+                                <div class="schedule"></div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </main>
         </div>
-      </div>
-    </main>
 
-  </div>
-
-  <script src="main.js"></script>
-</body>
+        <script src="main.js"></script>
+    </body>
 </html>

@@ -1,234 +1,232 @@
 html {
-  height: 100%;
-  min-width: 320px;
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
+    height: 100%;
+    min-width: 320px;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
 }
 
 body {
-  font: 14px/1.2 "Roboto", sans-serif;
-  height: 100%;
-  min-width: 320px;
-  position: relative;
-  margin: 0;
+    font: 14px/1.2 'Roboto', sans-serif;
+    height: 100%;
+    min-width: 320px;
+    position: relative;
+    margin: 0;
 
-  background-color: black;
-  color: white;
+    background-color: black;
+    color: white;
 }
 
 .wrapper {
-  display: table;
-  width: 100%;
-  height: 100%;
-  table-layout: fixed;
-  overflow: hidden;
+    display: table;
+    width: 100%;
+    height: 100%;
+    table-layout: fixed;
+    overflow: hidden;
 }
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .footer {
-  height: 1px;
-  display: table-row;
+    height: 1px;
+    display: table-row;
 }
-
 
 /* Header block styles START */
 .header {
-  text-align: center;
-  vertical-align: middle;
-  padding: 20px 0;
-  height: 60px;
-  margin-bottom: 60px;
-  box-shadow: inset 0px 0px 9px gray;
+    text-align: center;
+    vertical-align: middle;
+    padding: 20px 0;
+    height: 60px;
+    margin-bottom: 60px;
+    box-shadow: inset 0px 0px 9px gray;
 }
 /* Header block styles END */
 
 /* Main block styles START */
 .content-wrapper {
-  display: flex;
+    display: flex;
 }
 
 h1 {
-  margin-bottom: 30px;
+    margin-bottom: 30px;
 }
 
 form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column-gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 10px;
 }
 
 fieldset {
-  border: none;
-  margin: 0 auto 15px;
-  width: 100%;
-  padding: 0;
+    border: none;
+    margin: 0 auto 15px;
+    width: 100%;
+    padding: 0;
 }
 
 fieldset label {
-  cursor: pointer;
-  border: 1px solid greenyellow;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    cursor: pointer;
+    border: 1px solid greenyellow;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-fieldset input[type="file"] {
-  display: none;
+fieldset input[type='file'] {
+    display: none;
 }
 
 fieldset .upload-icon path {
-  fill: greenyellow;
+    fill: greenyellow;
 }
 
 .uploaded + .upload-icon path {
-  fill: red;
+    fill: red;
 }
 
 fieldset button {
-  cursor: pointer;
-  background: linear-gradient(0deg, green, yellow);
-  padding: 10px 30px;
-  border: none;
-  border-radius: 3px;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: white;
+    cursor: pointer;
+    background: linear-gradient(0deg, green, yellow);
+    padding: 10px 30px;
+    border: none;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: white;
 }
 
 fieldset b {
-  color: greenyellow;
+    color: greenyellow;
 }
 
 textarea {
-  width: 100%;
+    width: 100%;
 }
 
 .employees {
-  flex-basis: 15%;
-  margin-right: 15px;
+    flex-basis: 15%;
+    margin-right: 15px;
 }
 
 .employees ul {
-  list-style: none;
-  padding: 0;
+    list-style: none;
+    padding: 0;
 }
 
 .employees button {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 5px;
-  color: white;
-  background: green;
-  border: none;
-  border-radius: 3px;
-  text-transform: uppercase;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 5px;
+    color: white;
+    background: green;
+    border: none;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 .schedule {
-  flex-basis: 85%;
-  min-width: 85%;
-  /* margin-right: 15px; */
+    flex-basis: 85%;
+    min-width: 85%;
+    /* margin-right: 15px; */
 }
 
 .one-shift {
-  padding: 20px;
-  border: 1px solid greenyellow;
-  position: relative;
+    padding: 20px;
+    border: 1px solid greenyellow;
+    position: relative;
 }
 
 .tweet-wrapper {
-  padding: 15px;
-  border: 1px solid white;
-  background-color: gray;
-  color: black;
-  font-weight: 600;
-  position: relative;
+    padding: 15px;
+    border: 1px solid white;
+    background-color: gray;
+    color: black;
+    font-weight: 600;
+    position: relative;
 }
 
 .family {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  color: yellowgreen;
-  font-size: 20px;
-  font-weight: normal;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: yellowgreen;
+    font-size: 20px;
+    font-weight: normal;
 }
 
 .single-tweet p {
-  margin-top: 0;
+    margin-top: 0;
 }
 
 .single-tweet a {
-  color: darkgreen !important;
+    color: darkgreen !important;
 }
 
 .single-tweet select {
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 .single-tweet textarea {
-  width: 100%;
-  height: 50px;
+    width: 100%;
+    height: 50px;
 }
 
 .shift-toggler {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  width: 30px;
-  height: 30px;
-  background-color: greenyellow;
-  color: black;
-  border: none;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: rotate(90deg);
-  cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: greenyellow;
+    color: black;
+    border: none;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(90deg);
+    cursor: pointer;
 }
 
 .shift-toggler.active {
-  transform: rotate(-90deg);
+    transform: rotate(-90deg);
 }
 
 .answers-wrapper {
-  display: none;
+    display: none;
 }
 
 .answers-wrapper.active {
-  display: block;
+    display: block;
 }
 
 .link {
-  cursor: pointer;
-  color: greenyellow;
+    cursor: pointer;
+    color: greenyellow;
 }
 
 /* Main block styles END */
 
-
 @media print {
-  body {
-    visibility: hidden;
-  }
-  .schedule {
-    visibility: visible;
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
+    body {
+        visibility: hidden;
+    }
+    .schedule {
+        visibility: visible;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
 }
