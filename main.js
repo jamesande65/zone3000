@@ -28,7 +28,10 @@ let ExcelToJSON = function (variant) {
                     window.data.scheduleObj = filtered;
                 } else if (variant === 'answers') {
                     filtered = JSON.parse(json_object).filter((obj) => {
-                        return obj['Task Assignee'] !== 'Den Kislinskiy' || obj['Replied By'] !== 'Den Kislinskiy';
+                        // return obj['Reply Status'] === 'Yes' && obj['Replied By'] === 'Customer Support';
+                        return (
+                            (obj['Task Assignee'] !== 'Den Kislinskiy' && obj['Replied By'] !== 'Den Kislinskiy') || obj['Task Assignee'] !== 'Den Kislinskiy' || obj['Replied By'] !== 'Den Kislinskiy'
+                        );
                     });
 
                     window.data.answersObj = filtered;
@@ -175,8 +178,6 @@ function showSelectedSchedule(selectedEmployee) {
         const title = document.createElement('b');
         title.append(item);
 
-        // console.log(item);
-
         const infoContainer = document.createElement('div');
         infoContainer.classList.add('info-container');
 
@@ -188,11 +189,13 @@ function showSelectedSchedule(selectedEmployee) {
 
         messagesProcessedShift = data.answersObj.filter((elem) => {
             let completed;
+
             if (elem['Task Status'] === 'Tasked') {
                 completed = elem['First Reply Timestamp'];
             } else {
                 completed = elem['Completed Timestamp'];
             }
+
             if (!completed || regExp.test(completed)) {
                 return false;
             }
@@ -218,6 +221,7 @@ function showSelectedSchedule(selectedEmployee) {
 
         employeesAnswersShift = data.answersObj.filter((elem) => {
             let completed;
+
             if (elem['Task Status'] === 'Tasked') {
                 completed = elem['First Reply Timestamp'];
             } else {
@@ -233,44 +237,26 @@ function showSelectedSchedule(selectedEmployee) {
             const time = Number(completedArray[1]?.split(':')[0]);
 
             if (date && time) {
-                if (
-                    scheduleDate === date &&
-                    elem['Reply Status'] === 'Yes' &&
-                    (selectedEmployee[item].indexOf('Morning') !== -1 || selectedEmployee[item].indexOf('08:00 - 16:00') !== -1) &&
-                    time >= 8 &&
-                    time < 16
-                ) {
+                if (scheduleDate === date && (selectedEmployee[item].indexOf('Morning') !== -1 || selectedEmployee[item].indexOf('08:00 - 16:00') !== -1) && time >= 8 && time < 16) {
                     return elem;
                 }
 
-                if (
-                    scheduleDate === date &&
-                    elem['Reply Status'] === 'Yes' &&
-                    (selectedEmployee[item].indexOf('Night') !== -1 || selectedEmployee[item].indexOf('00:00 - 08:00') !== -1) &&
-                    time >= 0 &&
-                    time < 8
-                ) {
+                if (scheduleDate === date && (selectedEmployee[item].indexOf('Night') !== -1 || selectedEmployee[item].indexOf('00:00 - 08:00') !== -1) && time >= 0 && time < 8) {
                     return elem;
                 }
 
-                if (
-                    scheduleDate === date &&
-                    elem['Reply Status'] === 'Yes' &&
-                    (selectedEmployee[item].indexOf('Evening') !== -1 || selectedEmployee[item].indexOf('16:00 - 08:00') !== -1) &&
-                    time >= 16 &&
-                    time < 24
-                ) {
+                if (scheduleDate === date && (selectedEmployee[item].indexOf('Evening') !== -1 || selectedEmployee[item].indexOf('16:00 - 08:00') !== -1) && time >= 16 && time < 24) {
                     return elem;
                 }
             }
         });
 
-        // console.log(employeesAnswersShift);
-
         const answersWrapper = document.createElement('div');
         answersWrapper.classList.add('answers-wrapper', 'active');
 
         let oneShiftAnswers = [];
+
+        console.log(employeesAnswersShift, 'employeesAnswersShift');
 
         employeesAnswersShift.forEach((item, indexAnswer) => {
             const tweet = document.createElement('p');
@@ -316,7 +302,10 @@ function showSelectedSchedule(selectedEmployee) {
 
         div.appendChild(answersWrapper);
 
-        wrapper.appendChild(div);
+        if (employeesAnswersShift.length > 0) {
+            wrapper.appendChild(div);
+        }
+        // wrapper.appendChild(div);
     });
 
     container.innerHTML = '';
@@ -358,6 +347,7 @@ function showSelectedSchedule(selectedEmployee) {
         wrapper.classList.add('single-tweet');
 
         let completedTimeStamp;
+
         if (tweet['Task Status'] === 'Tasked') {
             completedTimeStamp = tweet['First Reply Timestamp'];
         } else {
@@ -393,10 +383,10 @@ function showSelectedSchedule(selectedEmployee) {
         const submittedTime = new Date(tweet['Timestamp (PT)']);
         const completedTime = new Date(completedTimeStamp);
         const diff = Math.abs(completedTime - submittedTime);
+
         const minutes = Math.floor(diff / 1000 / 60);
 
         wrapper.dataset.minutes = minutes;
-
         averageMonthArr.push(minutes);
 
         const processingTime = document.createElement('p');
@@ -431,7 +421,13 @@ function showSelectedSchedule(selectedEmployee) {
 
         wrapper.appendChild(timeStamps);
         wrapper.appendChild(family);
-        wrapper.appendChild(processingTime);
+
+        if (tweet['Task Status'] !== 'Tasked') {
+            wrapper.appendChild(processingTime);
+        } else {
+            processingTime.innerHTML = 'Tasked';
+            wrapper.appendChild(processingTime);
+        }
 
         if (tweet['Message']) {
             const message = document.createElement('p');
